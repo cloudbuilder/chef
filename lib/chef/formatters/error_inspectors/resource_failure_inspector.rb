@@ -25,11 +25,13 @@ class Chef
         attr_reader :resource
         attr_reader :action
         attr_reader :exception
+        attr_reader :sensitive
 
         def initialize(resource, action, exception)
           @resource = resource
           @action = action
           @exception = exception
+          @sensitive = resource.sensitive rescue false
         end
 
         def add_explanation(error_description)
@@ -40,10 +42,10 @@ class Chef
           end
 
           unless dynamic_resource?
-            error_description.section("Resource Declaration:", recipe_snippet)
+            error_description.section("Resource Declaration:", sensitive ? "suppressed sensitive resource output" : recipe_snippet)
           end
 
-          error_description.section("Compiled Resource:", "#{resource.to_text}")
+          error_description.section("Compiled Resource:", sensitive ? "suppressed sensitive resource output" : "#{resource.to_text}")
 
           # Template errors get wrapped in an exception class that can show the relevant template code,
           # so add them to the error output.
